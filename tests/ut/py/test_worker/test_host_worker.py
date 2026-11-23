@@ -1555,10 +1555,10 @@ class _TwoFrameLoopHarness:
         self.thread.start()
 
     def publish_ccu_control(self, payload: bytes) -> SharedMemory:
-        staged = SharedMemory(create=True, size=len(payload))
+        staged = SharedMemory(create=True, size=len(payload) + 1)
         self._control_payloads.append(staged)
         assert staged.buf is not None
-        staged.buf[:] = payload
+        staged.buf[: len(payload)] = payload
         struct.pack_into("Q", self.buf, worker_mod._OFF_CALLABLE, worker_mod._CTRL_CCU_DOMAIN)
         struct.pack_into("Q", self.buf, worker_mod._CTRL_OFF_ARG0, len(payload))
         name = staged.name.encode().ljust(worker_mod._CTRL_SHM_NAME_BYTES, b"\0")
