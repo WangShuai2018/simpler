@@ -305,6 +305,17 @@ inline bool percounter_sync_widths_fit(const uint64_t *widths, uint64_t clusters
 inline constexpr uint32_t PERCOUNTER_LIST_COUNT = PERCOUNTER_CORE_TYPE_COUNT;
 inline constexpr uint32_t PERCOUNTER_SYNC_DOMAIN_COUNT = 3;  // AIC, ordinary AIV, MIX
 
+// cluster_slot entry for a launched cluster the die-affinity active set excludes.
+inline constexpr uint8_t PERCOUNTER_CLUSTER_IDLE = 0xFF;
+
+// Values of PercounterControl::die_sched_policy. The host copies them straight
+// from CallConfig::DieSchedPolicy, so the two enumerations must agree.
+enum class PercounterDiePolicy : uint32_t {
+    ALL = 0,        // every launched cluster draws work; cluster_slot is unread
+    DIE_LOCAL = 1,  // active_cluster_count clusters, all on die 0
+    CROSS_DIE = 2,  // active_cluster_count clusters, half on each die
+};
+
 /** One body task of a Graph template. */
 struct PercounterBodyTask {
     // Subtasks the task runs in all, `block_num * popcount(active_mask)`: what
@@ -521,6 +532,16 @@ struct alignas(128) PercounterControl {
     uint64_t lane_error_task;
     uint64_t lane_error_detail;
     uint32_t first_boundary_segment[PERCOUNTER_SYNC_DOMAIN_COUNT];
+
+    // Die-affinity active set. Zero die_sched_policy means every launched
+    // cluster draws work and cluster_slot is unread. Nonzero means only
+    // active_cluster_count clusters run: cluster_slot[launch_cluster] is that
+    // cluster's dense rank in 0..active_cluster_count-1, or PERCOUNTER_CLUSTER_IDLE
+    // for a launched cluster that must sit idle. The AICPU fills this after it
+    // learns each cluster's physical die from the handshake.
+    uint32_t die_sched_policy;
+    uint32_t active_cluster_count;
+    uint8_t cluster_slot[SCHEDULER_CLUSTER_CAPACITY];
 
     // Allocation precedes the corresponding block's completed publication.
     // Both counters are monotone; equality after all blocks ran permits exit.

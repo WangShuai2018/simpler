@@ -114,6 +114,44 @@ which is exactly when every block of the boundary has an owner. An empty lane
 can continue through exhausted intervals immediately. There is no timing budget
 or change to which task an empty position may acquire.
 
+## Die-affinity active set
+
+A run may draw work on fewer clusters than it launches, chosen by physical die.
+`CallConfig.die_sched_policy` selects the shape and `aic_cluster_count` (K) its
+width; both are zero on an ordinary run. The launch still takes the whole device
+— the knob narrows who draws work, not how many cores start.
+
+The policy travels per run through `HostApi::ClusterSelection` rather than the
+uploaded `runtime.dev`, so only this runtime reads it. `select_percounter_state`
+plans the tables for K clusters: it passes K to `build_tables` and K*3 workers to
+`gather_graph_inputs`, so the resource schedule, terminal pipeline and sync
+widths all describe the clusters that will run. It writes `die_sched_policy` and
+`active_cluster_count = K` into the control and leaves `cluster_slot` for the
+AICPU. A policy with chip swimlane level ≥ 2 is refused: the per-worker profile
+buffers are sized and indexed for the full launch, not the narrowed plan.
+
+The logical-cluster to physical-die map is known only after the handshake, so
+`percounter_post_handshake_init` chooses the active set. A cluster's die is its
+AIC worker's `physical_core_id / (PLATFORM_AICORE_PER_DIE *
+PLATFORM_CORES_PER_BLOCKDIM)` (= /54 on this chip). `DIE_LOCAL` takes the first
+K clusters on die 0; `CROSS_DIE` takes K/2 from each die; a shape that cannot be
+filled fails the run. Each kept cluster gets a dense rank 0..K-1 in
+`cluster_slot[launch_cluster]`; an unkept one gets `PERCOUNTER_CLUSTER_IDLE`. The
+sync-width check runs against K, and `cluster_count` stays the launch width so
+lanes still resolve their launch coordinate from it.
+
+`run_percounter_lane` resolves its launch cluster as usual, then — when
+`active_cluster_count` is set — reads `cluster_slot[launch_cluster]`. An idle
+entry returns at once and the lane waits for EXIT; otherwise the lane adopts the
+dense rank as its `cluster_index` and K as its `cluster_count`, so every
+K-dependent draw (block ranges, claim sectors, sync cohorts) sees the narrowed
+topology. Per-lane storage (async records, profiling) stays indexed by the
+physical launch block, which the full-width allocation already covers.
+
+`CROSS_DIE` needs the launch to span both dies, so the benchmark in
+`tests/st/a5/percounter/die_affinity` runs on hardware only; sim is one die and
+supports `DIE_LOCAL` alone.
+
 ## Shared record lifetime
 
 AIV0 writes a descriptor and release-publishes its generation. Each actual

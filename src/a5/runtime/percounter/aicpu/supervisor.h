@@ -110,8 +110,52 @@ percounter_post_handshake_init(Runtime *runtime, const AicoreLifecycle &lifecycl
     }
 
     cache_invalidate_range(control, sizeof(*control));
-    if (!percounter_sync_widths_fit(control->max_sync_blocks, aic_count, PLATFORM_AIV_CORES_PER_BLOCKDIM)) {
-        LOG_ERROR("A5 percounter: sync_start width exceeds the reported topology");
+    // Die-affinity active set. The host planned the tables for active_cluster_count
+    // clusters; here we choose which launched clusters those are from each one's
+    // physical die and give each a dense rank in 0..active-1. The lanes of an
+    // unchosen cluster read PERCOUNTER_CLUSTER_IDLE and return at once.
+    uint64_t sched_clusters = static_cast<uint64_t>(aic_count);
+    if (control->die_sched_policy != 0) {
+        const uint32_t policy = control->die_sched_policy;
+        const uint32_t active = control->active_cluster_count;
+        if (active == 0 || active > static_cast<uint32_t>(aic_count)) {
+            LOG_ERROR("A5 percounter: active_cluster_count=%u invalid for %d clusters", active, aic_count);
+            return -1;
+        }
+        constexpr uint32_t cores_per_die = PLATFORM_AICORE_PER_DIE * PLATFORM_CORES_PER_BLOCKDIM;
+        for (uint32_t c = 0; c < SCHEDULER_CLUSTER_CAPACITY; ++c)
+            control->cluster_slot[c] = PERCOUNTER_CLUSTER_IDLE;
+        uint32_t rank = 0;
+        // AIC worker c owns cluster c, so cluster c's die is that worker's.
+        const auto take_from_die = [&](uint32_t want_die, uint32_t need) {
+            for (int32_t c = 0; c < aic_count && need > 0; ++c) {
+                if (control->cluster_slot[c] != PERCOUNTER_CLUSTER_IDLE) continue;
+                if (!lifecycle.core_reported(c) || lifecycle.core_type(c) != CoreType::AIC) continue;
+                if (lifecycle.physical_core_id(c) / cores_per_die != want_die) continue;
+                control->cluster_slot[c] = static_cast<uint8_t>(rank++);
+                --need;
+            }
+            return need;
+        };
+        uint32_t missing = active;
+        if (policy == static_cast<uint32_t>(PercounterDiePolicy::DIE_LOCAL)) {
+            missing = take_from_die(0, active);
+        } else if (policy == static_cast<uint32_t>(PercounterDiePolicy::CROSS_DIE)) {
+            const uint32_t half = active / 2;
+            missing = take_from_die(0, half);
+            if (missing == 0) missing = take_from_die(1, half);
+        } else {
+            LOG_ERROR("A5 percounter: unknown die_sched_policy %u", policy);
+            return -1;
+        }
+        if (missing != 0 || rank != active) {
+            LOG_ERROR("A5 percounter: die policy %u could not place %u clusters among the launched dies", policy, active);
+            return -1;
+        }
+        sched_clusters = active;
+    }
+    if (!percounter_sync_widths_fit(control->max_sync_blocks, sched_clusters, PLATFORM_AIV_CORES_PER_BLOCKDIM)) {
+        LOG_ERROR("A5 percounter: sync_start width exceeds the scheduling topology");
         return -1;
     }
     control->cluster_count = static_cast<uint64_t>(aic_count);
@@ -130,6 +174,11 @@ percounter_post_handshake_init(Runtime *runtime, const AicoreLifecycle &lifecycl
     }
     wmb();
     LOG_INFO("A5 percounter: topology %d clusters x %d AIV", aic_count, PLATFORM_AIV_CORES_PER_BLOCKDIM);
+    if (control->die_sched_policy != 0)
+        LOG_INFO(
+            "A5 percounter: die policy %u active %u of %d launched clusters", control->die_sched_policy,
+            control->active_cluster_count, aic_count
+        );
     return 0;
 }
 

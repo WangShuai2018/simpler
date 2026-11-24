@@ -26,6 +26,10 @@
  * DeviceRunner::prepare_launch_shape() resolves the width before the graph is
  * built, and orchestration reads it back via rt_available_cluster_count().
  *
+ * `die_sched_policy` / `aic_cluster_count` narrow which launched clusters draw
+ * work without changing the launch width; only the A5 percounter runtime honors
+ * them. See DieSchedPolicy.
+ *
  * Lives here (rather than chip_worker.h) so distributed task slot state
  * can store it directly without pulling in the full ChipWorker header
  * (which depends on types.h).
@@ -108,6 +112,15 @@ struct RuntimeEnv {
     }
 };
 
+// Which launched clusters draw work in an A5 percounter run. A cluster's die is
+// derived from its AIC's physical core id after discovery; the launch still
+// takes the whole device and the remaining clusters stay idle until EXIT.
+enum class DieSchedPolicy : int32_t {
+    ALL = 0,        // every launched cluster draws work; aic_cluster_count must be 0
+    DIE_LOCAL = 1,  // aic_cluster_count clusters, all on die 0
+    CROSS_DIE = 2,  // aic_cluster_count clusters, half on each die (count must be even)
+};
+
 struct CallConfig {
     // 0 = auto: use the architecture default (a2a3: 4; a5: 5).
     // Explicit normal-run values must be at least 2.
@@ -117,6 +130,8 @@ struct CallConfig {
     int32_t enable_pmu = 0;  // 0 = disabled; >0 = enabled, value selects event type
     int32_t enable_dep_gen = 0;
     int32_t enable_scope_stats = 0;  // writes <output_prefix>/scope_stats/scope_stats.jsonl
+    int32_t die_sched_policy = 0;    // DieSchedPolicy
+    int32_t aic_cluster_count = 0;   // clusters that draw work; nonzero exactly when die_sched_policy is
     RuntimeEnv runtime_env;          // per-task ring sizing
     char output_prefix[1024] = {};
 
@@ -128,7 +143,8 @@ struct CallConfig {
     bool output_prefix_set() const noexcept { return output_prefix[0] != '\0'; }
 
     // Throws if any diagnostic flag is enabled but `output_prefix` is empty,
-    // or if a ring sizing override violates the ring buffer's constraints.
+    // if the die scheduling pair is inconsistent, or if a ring sizing override
+    // violates the ring buffer's constraints.
     // Called at every submit/run entry point so the failure surfaces as close
     // to the user's call site as possible (no IPC round-trip).
     void validate() const {
@@ -139,12 +155,32 @@ struct CallConfig {
                 "enable_scope_stats is enabled"
             );
         }
+        validate_die_sched();
         runtime_env.validate();
+    }
+
+    void validate_die_sched() const {
+        if (die_sched_policy < static_cast<int32_t>(DieSchedPolicy::ALL) ||
+            die_sched_policy > static_cast<int32_t>(DieSchedPolicy::CROSS_DIE)) {
+            throw std::invalid_argument("CallConfig: die_sched_policy must be 0 (all), 1 (die-local) or 2 (cross-die)");
+        }
+        if (die_sched_policy == static_cast<int32_t>(DieSchedPolicy::ALL)) {
+            if (aic_cluster_count != 0) {
+                throw std::invalid_argument("CallConfig: aic_cluster_count requires a nonzero die_sched_policy");
+            }
+            return;
+        }
+        if (aic_cluster_count <= 0) {
+            throw std::invalid_argument("CallConfig: a nonzero die_sched_policy requires aic_cluster_count >= 1");
+        }
+        if (die_sched_policy == static_cast<int32_t>(DieSchedPolicy::CROSS_DIE) && aic_cluster_count % 2 != 0) {
+            throw std::invalid_argument("CallConfig: cross-die scheduling requires an even aic_cluster_count");
+        }
     }
 };
 #pragma pack(pop)
 static_assert(sizeof(RuntimeEnv) == RUNTIME_ENV_UINT64_FIELD_COUNT * sizeof(uint64_t), "RuntimeEnv wire layout drift");
 static_assert(
-    sizeof(CallConfig) == 6 * sizeof(int32_t) + RUNTIME_ENV_UINT64_FIELD_COUNT * sizeof(uint64_t) + 1024,
+    sizeof(CallConfig) == 8 * sizeof(int32_t) + RUNTIME_ENV_UINT64_FIELD_COUNT * sizeof(uint64_t) + 1024,
     "CallConfig wire layout drift"
 );

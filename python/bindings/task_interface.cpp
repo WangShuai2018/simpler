@@ -3763,6 +3763,8 @@ NB_MODULE(_task_interface, m) {
                 c.enable_scope_stats = v ? 1 : 0;
             }
         )
+        .def_rw("die_sched_policy", &CallConfig::die_sched_policy)
+        .def_rw("aic_cluster_count", &CallConfig::aic_cluster_count)
         .def_prop_rw(
             "output_prefix",
             [](const CallConfig &c) -> std::string {
@@ -3786,6 +3788,10 @@ NB_MODULE(_task_interface, m) {
                << ", enable_dump_args=" << self.enable_dump_args << ", enable_pmu=" << self.enable_pmu
                << ", enable_dep_gen=" << (self.enable_dep_gen ? "True" : "False")
                << ", enable_scope_stats=" << (self.enable_scope_stats ? "True" : "False");
+            if (self.die_sched_policy != 0) {
+                os << ", die_sched_policy=" << self.die_sched_policy
+                   << ", aic_cluster_count=" << self.aic_cluster_count;
+            }
             if (self.runtime_env.any()) {
                 append_ring_values(os, "runtime_env.ring_task_window", true, self.runtime_env.ring_task_window);
                 append_ring_values(os, "runtime_env.ring_heap", true, self.runtime_env.ring_heap);

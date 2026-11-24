@@ -76,6 +76,10 @@ int DeviceRunner::prepare_launch_shape(Runtime &runtime, const CallConfig &confi
         LOG_ERROR("WSE exposes PE events through output_prefix; legacy device diagnostic collectors are unsupported");
         return PTO_RUNTIME_ERR_UNSUPPORTED;
     }
+    if (config.die_sched_policy != 0) {
+        LOG_ERROR("WSE has no dies; die_sched_policy must be 0 (got %d)", config.die_sched_policy);
+        return PTO_RUNTIME_ERR_UNSUPPORTED;
+    }
     sram_.freeze();
     block_dim_ = cores;
     worker_count_ = cores * WSE_PE_PER_CORE;

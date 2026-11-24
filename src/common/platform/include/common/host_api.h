@@ -349,18 +349,26 @@ public:
         bool pmu_enabled;
     };
 
+    // CallConfig.die_sched_policy / aic_cluster_count of this bind's run. Binds
+    // without a run, and runtimes other than A5 percounter, see all zeros.
+    struct ClusterSelection {
+        int32_t die_sched_policy;
+        int32_t cluster_count;
+    };
+
     // Native runs supply their own selection before bind. Registration and
     // prewarm callers without a run retain the runner-query fallback.
     HostApi(
         void *runner_ctx, uint32_t pipeline_slot, RegionBanks banks, uint64_t run_epoch, const HostApiOps *ops,
-        std::optional<DiagnosticConfig> diagnostics = std::nullopt
+        std::optional<DiagnosticConfig> diagnostics = std::nullopt, ClusterSelection cluster_selection = {}
     ) noexcept :
         runner_ctx_(runner_ctx),
         pipeline_slot_(pipeline_slot),
         banks_(banks),
         run_epoch_(run_epoch),
         ops_(ops),
-        diagnostics_(diagnostics) {}
+        diagnostics_(diagnostics),
+        cluster_selection_(cluster_selection) {}
 
     // Compatibility constructor for callers whose regions share one bank.
     HostApi(
@@ -527,6 +535,7 @@ public:
         if (diagnostics_) return diagnostics_->pmu_enabled;
         return ops_->get_pmu_enabled == nullptr || ops_->get_pmu_enabled(runner_ctx_) != 0;
     }
+    ClusterSelection cluster_selection() const { return cluster_selection_; }
     /**
      * Arm this pass's host phase pool.
      *
@@ -644,4 +653,5 @@ private:
     uint64_t run_epoch_{0};
     const HostApiOps *ops_{nullptr};
     std::optional<DiagnosticConfig> diagnostics_;
+    ClusterSelection cluster_selection_{};
 };

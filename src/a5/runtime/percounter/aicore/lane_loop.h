@@ -1856,6 +1856,18 @@ run_percounter_lane(__gm__ PercounterControl *control, int block_idx, CoreType c
         return {};
     }
 
+    // Die-affinity: the AICPU remaps the launched clusters it kept to dense ranks
+    // and idles the rest. An idled lane draws no work and waits for EXIT. A kept
+    // lane schedules as the narrowed topology its dense rank belongs to.
+    uint64_t sched_cluster_count = cluster_count;
+    const uint32_t active_cluster_count = control->active_cluster_count;
+    if (active_cluster_count != 0) {
+        const uint8_t slot = control->cluster_slot[coordinate.cluster_index];
+        if (slot == PERCOUNTER_CLUSTER_IDLE) return {};
+        coordinate.cluster_index = slot;
+        sched_cluster_count = active_cluster_count;
+    }
+
     LaneConfig cfg{};
     PercounterScalarTrace scalar{};
     PercounterScalarBinding scalar_binding;
@@ -1928,7 +1940,7 @@ run_percounter_lane(__gm__ PercounterControl *control, int block_idx, CoreType c
     cfg.async_completion_capacity = control->async_completion_capacity;
     cfg.cluster_index = coordinate.cluster_index;
     cfg.cluster_lane = coordinate.cluster_lane;
-    cfg.cluster_count = static_cast<uint32_t>(cluster_count);
+    cfg.cluster_count = static_cast<uint32_t>(sched_cluster_count);
     cfg.aiv_per_cluster = static_cast<uint32_t>(aiv_per_cluster);
 
     const uint64_t timeout_cycles = control->scheduler_timeout_cycles;

@@ -155,11 +155,34 @@ inline StateSelection select_percounter_state(
     for (int64_t id : inline_completed_task_ids)
         inline_completed[static_cast<size_t>(id)] = true;
 
+    // Die-affinity narrows how many of the launched clusters draw work. The
+    // tables are planned for that narrowed count so the resource schedule and
+    // terminal pipeline match the clusters that actually run; the AICPU picks
+    // which launched clusters those are once it learns their physical die.
+    const HostApi::ClusterSelection selection = api != nullptr ? api->cluster_selection() : HostApi::ClusterSelection{};
+    const uint32_t launch_clusters = static_cast<uint32_t>(runtime->get_worker_count() / PLATFORM_CORES_PER_BLOCKDIM);
+    uint32_t plan_clusters = launch_clusters;
+    if (selection.die_sched_policy != 0) {
+        if (runtime->dev.chip_swimlane_level >= 2) {
+            LOG_ERROR("A5 percounter: die_sched_policy is unsupported with chip swimlane level >= 2");
+            return StateSelection::FAILED;
+        }
+        if (selection.cluster_count < 1 || static_cast<uint32_t>(selection.cluster_count) > launch_clusters) {
+            LOG_ERROR(
+                "A5 percounter: aic_cluster_count=%d out of range for %u launched clusters", selection.cluster_count,
+                launch_clusters
+            );
+            return StateSelection::FAILED;
+        }
+        plan_clusters = static_cast<uint32_t>(selection.cluster_count);
+    }
+
     std::vector<TaskInput> inputs(task_count);
     GraphInputs graph{};
     int64_t graph_failed_task = -1;
     const TemplateResult graph_status = gather_graph_inputs(
-        api, host_sm_handle, total_tasks, runtime->get_worker_count(), &inputs, &graph, &graph_failed_task
+        api, host_sm_handle, total_tasks, plan_clusters * PLATFORM_CORES_PER_BLOCKDIM, &inputs, &graph,
+        &graph_failed_task
     );
     if (graph_status.status == TemplateStatus::MALFORMED) {
         LOG_ERROR(
@@ -353,9 +376,8 @@ inline StateSelection select_percounter_state(
         return false;
     };
     if (!build_tables(
-            inputs.data(), task_count, layout, host_base, device_base,
-            static_cast<uint32_t>(runtime->get_worker_count() / PLATFORM_CORES_PER_BLOCKDIM), external, &build,
-            graph_plan, true, may_defer
+            inputs.data(), task_count, layout, host_base, device_base, plan_clusters, external, &build, graph_plan, true,
+            may_defer
         )) {
         LOG_ERROR(
             "A5 percounter: %s (task id=%" PRId64 ", fanin index=%d)", build_status_name(build.status), build.task_id,
@@ -389,8 +411,12 @@ inline StateSelection select_percounter_state(
         return true;
     };
     auto *counters = region_at<PercounterCounter>(host_base, layout.counters_offset);
-    region_at<PercounterControl>(host_base, layout.control_offset)->arguments_address =
-        device_image + device_segments.scalar_pool;
+    auto *control = region_at<PercounterControl>(host_base, layout.control_offset);
+    control->arguments_address = device_image + device_segments.scalar_pool;
+    // The AICPU reads these after the handshake to place the active set; it fills
+    // cluster_slot. build_tables already zeroed both, so the no-policy run is inert.
+    control->die_sched_policy = static_cast<uint32_t>(selection.die_sched_policy);
+    control->active_cluster_count = selection.die_sched_policy != 0 ? plan_clusters : 0;
     for (size_t id = 0; id < task_count; ++id) {
         const auto &input = inputs[id];
         if (input.graph_invocation >= 0 || input.inline_completed || input.published_off_lane || input.active_mask == 0)

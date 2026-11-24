@@ -67,6 +67,9 @@ public:
     // itself. Valid once every thread has finished handshake_partition.
     int32_t core_count() const { return core_count_; }
     CoreType core_type(int32_t worker) const { return cores_[worker].core_type; }
+    // The chip core this worker reported as. A scheduler mode reads it to place
+    // work by die; the id's die field is physical_core_id / (AICORE_PER_DIE * CORES_PER_BLOCKDIM).
+    uint32_t physical_core_id(int32_t worker) const { return cores_[worker].physical_core_id; }
     // Whether `worker` reported to this run: only an accepted report fills its
     // register address, so a silent worker must not be told READY.
     bool core_reported(int32_t worker) const { return cores_[worker].reg_addr != 0; }

@@ -30,6 +30,8 @@ _CONFIG_FIELDS = (
     "enable_pmu",
     "enable_dep_gen",
     "enable_scope_stats",
+    "die_sched_policy",
+    "aic_cluster_count",
     "output_prefix",
 )
 _RUNTIME_FIELDS = ("ring_task_window", "ring_heap", "ring_dep_pool")

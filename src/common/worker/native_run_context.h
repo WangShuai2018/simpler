@@ -53,7 +53,8 @@ struct NativeRunContext {
         banks(banks_in),
         host_api(
             runner_in, descriptor_in.pipeline_slot, banks_in, descriptor_in.run_epoch, host_api_ops,
-            HostApi::DiagnosticConfig{static_cast<uint32_t>(config_in.enable_chip_swimlane), config_in.enable_pmu > 0}
+            HostApi::DiagnosticConfig{static_cast<uint32_t>(config_in.enable_chip_swimlane), config_in.enable_pmu > 0},
+            HostApi::ClusterSelection{config_in.die_sched_policy, config_in.aic_cluster_count}
         ),
         trace_hid(trace_hid_in) {
         // Publish the storage tag only after every potentially-throwing member
