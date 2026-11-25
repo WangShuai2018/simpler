@@ -1,0 +1,37 @@
+{
+  "metric": "chip.run.runner_run.aicore_wall",
+  "profiling_level": 0,
+  "endpoint_semantics": "first_kernel_start_to_last_kernel_end",
+  "devices": [
+    0
+  ],
+  "warmup": 1,
+  "rounds": 10,
+  "per_rank_samples_ms": [
+    [
+      0.14151,
+      0.140321,
+      0.140116,
+      0.135236,
+      0.140055,
+      0.137084,
+      0.136718,
+      0.136994,
+      0.139769,
+      0.136334
+    ]
+  ],
+  "samples_ms": [
+    0.14151,
+    0.140321,
+    0.140116,
+    0.135236,
+    0.140055,
+    0.137084,
+    0.136718,
+    0.136994,
+    0.139769,
+    0.136334
+  ],
+  "mean_ms": 0.1384137
+}

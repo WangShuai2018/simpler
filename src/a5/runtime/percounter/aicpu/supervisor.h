@@ -179,6 +179,20 @@ percounter_post_handshake_init(Runtime *runtime, const AicoreLifecycle &lifecycl
             "A5 percounter: die policy %u active %u of %d launched clusters", control->die_sched_policy,
             control->active_cluster_count, aic_count
         );
+    // Per-cluster die map. A swimlane capture names the launch cluster a lane
+    // belongs to but not its die, so emit the mapping the active set was chosen
+    // from. Printed under every policy, so a narrowed run reads against a full one.
+    {
+        constexpr uint32_t die_stride = PLATFORM_AICORE_PER_DIE * PLATFORM_CORES_PER_BLOCKDIM;
+        for (int32_t c = 0; c < aic_count; ++c) {
+            const uint32_t slot = control->die_sched_policy != 0 ? control->cluster_slot[c] : static_cast<uint32_t>(c);
+            LOG_INFO(
+                "A5 percounter: cluster %d physical_core %d die %u slot %d", c, lifecycle.physical_core_id(c),
+                static_cast<uint32_t>(lifecycle.physical_core_id(c)) / die_stride,
+                slot == PERCOUNTER_CLUSTER_IDLE ? -1 : static_cast<int32_t>(slot)
+            );
+        }
+    }
     return 0;
 }
 
@@ -368,6 +382,28 @@ percounter_supervise(Runtime *runtime, uint64_t timeout_cycles, int32_t aicpu_th
                     "A5 percounter: no progress; %" PRIu64 " of %" PRIu64 " sinks complete, %" PRIu64
                     " deferred completions outstanding",
                     resolved, sink_count, outstanding
+                );
+                // Name the stall. The sinks are the reliable signal: a sink that
+                // has not published is one this run was waiting on. The task scan
+                // below is weaker evidence, because a task that is not completion
+                // tracked never publishes even on a healthy run.
+                for (uint64_t i = 0, shown = 0; i < sink_count && shown < 8; ++i) {
+                    if (percounter_task_published(counters[sinks[i]])) continue;
+                    LOG_ERROR("A5 percounter: stalled sink task=%" PRIu64, sinks[i]);
+                    ++shown;
+                }
+                uint64_t unpublished = 0;
+                for (uint64_t id = 0; id < control->task_count; ++id) {
+                    if (percounter_task_published(counters[id])) continue;
+                    if (unpublished < 8)
+                        LOG_ERROR(
+                            "A5 percounter: unpublished task=%" PRIu64 " counter=%" PRIu64, id,
+                            __atomic_load_n(&counters[id].value, __ATOMIC_ACQUIRE)
+                        );
+                    ++unpublished;
+                }
+                LOG_ERROR(
+                    "A5 percounter: %" PRIu64 " of %" PRIu64 " tasks unpublished", unpublished, control->task_count
                 );
                 break;
             }

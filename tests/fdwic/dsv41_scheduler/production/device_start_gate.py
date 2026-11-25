@@ -118,12 +118,16 @@ def tool(name):
     return str(Path(found).resolve())
 
 
-def run(command, env, log):
+def run(command, env, log, tolerate=None):
+    """Run one build command. `tolerate` names a failure the caller can record
+    instead of raising: it matches against the command's output."""
     command = list(map(str, command))
     result = subprocess.run(command, env=env, text=True, capture_output=True, check=False)
     with log.open("a") as stream:
         stream.write("$ " + shlex.join(command) + "\n" + result.stdout + result.stderr + "\n")
     if result.returncode:
+        if tolerate is not None and tolerate in result.stdout + result.stderr:
+            return None
         raise RuntimeError(f"Build command failed ({result.returncode}); see {log}")
     return result.stdout.strip()
 
@@ -221,7 +225,11 @@ def build(args):
     bitcode = work / "device_start_gate.bc"
     llvm_ir = work / "device_start_gate.ll"
     run(gate_flags + ["-c", "-flto", "-o", bitcode, gate_source], env, log)
-    run(
+    # A CANN build compiled without textual IR printing cannot dump the TU. The
+    # dump is build evidence beside the bitcode, so record its absence and keep
+    # the gate object, whose entry symbol and sections are checked below.
+    ir_unavailable = "textual IR printing is disabled in this build"
+    emitted_ir = run(
         [
             tools["ccec"],
             "-cc1",
@@ -237,6 +245,7 @@ def build(args):
         ],
         env,
         log,
+        tolerate=ir_unavailable,
     )
     gate_sections = executable_sections(gate)
     symbols = run([tools["readelf"], "-sW", gate], env, log)
@@ -325,7 +334,11 @@ def build(args):
             "file": str(gate),
             "entry": ENTRY,
             "sections": {section: len(data) for section, data in gate_sections.items()},
-            "ir": {"file": str(llvm_ir), "scope": "gate single translation unit"},
+            "ir": (
+                {"file": str(llvm_ir), "scope": "gate single translation unit"}
+                if emitted_ir is not None
+                else {"file": None, "scope": "gate single translation unit", "unavailable": ir_unavailable}
+            ),
             "bitcode": {"file": str(bitcode)},
             "reused_from": str(args.gate_kernel.resolve()) if args.gate_kernel is not None else None,
         },

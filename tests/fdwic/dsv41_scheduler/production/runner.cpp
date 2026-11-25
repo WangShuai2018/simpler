@@ -298,9 +298,12 @@ int run(int argc, char **argv) {
     }
     bool materialize = false;
     std::string runtime_name = "host_build_graph";
+    // CallConfig die scheduling; only the A5 percounter runtime honors it.
+    int32_t die_policy = 0, die_clusters = 0;
     if (argc < 10) {
         std::cerr << "usage: native-runner BUNDLE RUNTIME_LIB DEVICE RANK ROOTINFO OUTPUT LEVEL WARMUP ROUNDS "
-                     "[--materialize] [--runtime=host_build_graph|percounter|tensormap_and_ringbuffer]\n";
+                     "[--materialize] [--runtime=host_build_graph|percounter|tensormap_and_ringbuffer] "
+                     "[--die-policy=0|1|2] [--die-clusters=N]\n";
         return 2;
     }
     for (int i = 10; i < argc; ++i) {
@@ -309,6 +312,8 @@ int run(int argc, char **argv) {
         else if (option == "--runtime=host_build_graph") runtime_name = "host_build_graph";
         else if (option == "--runtime=percounter") runtime_name = "percounter";
         else if (option == "--runtime=tensormap_and_ringbuffer") runtime_name = "tensormap_and_ringbuffer";
+        else if (option.rfind("--die-policy=", 0) == 0) die_policy = std::stoi(option.substr(13));
+        else if (option.rfind("--die-clusters=", 0) == 0) die_clusters = std::stoi(option.substr(15));
         else throw std::runtime_error("Unknown runner option: " + option);
     }
     const fs::path bundle = argv[1], libraries = argv[2], output = argv[6];
@@ -336,7 +341,13 @@ int run(int argc, char **argv) {
         throw std::runtime_error("Cannot initialize the native process logger");
     }
     HostLogger::get_instance().set_log_directory((output / "host").c_str());
-    HostLogger::get_instance().set_level(simpler::log::LogLevel::TIMING);
+    // Onboard AICPU latches this threshold once at init, so raising it here is
+    // the only way to see the scheduler's own INFO lines (die policy, topology).
+    const char *log_level = std::getenv("DSV41_LOG_LEVEL");
+    HostLogger::get_instance().set_level(
+        log_level != nullptr && std::string(log_level) == "info" ? simpler::log::LogLevel::INFO :
+                                                                   simpler::log::LogLevel::TIMING
+    );
     std::ifstream manifest(bundle / ("rank" + std::to_string(rank) + ".txt"));
     const auto input_format = read<std::string>(manifest);
     const bool native_moe = input_format == "DSV41_MOE_V1";
@@ -352,7 +363,12 @@ int run(int argc, char **argv) {
     if (rank < 0 || rank >= ranks) throw std::runtime_error("Rank outside original workload");
     ChipWorker worker;
     CallConfig config;
-    const uint64_t heaps[] = {2ULL << 30, 2ULL << 30, 1ULL << 30, 512ULL << 20};
+    config.die_sched_policy = die_policy;
+    config.aic_cluster_count = die_clusters;
+    // Ring 0 holds the 40-layer forward graph. HBG commits its graph heap at the
+    // measured size, but percounter reserves this configured amount up front, so
+    // the capture needs the full forward's ~3.9 GiB here rather than 2 GiB.
+    const uint64_t heaps[] = {6ULL << 30, 2ULL << 30, 1ULL << 30, 512ULL << 20};
     for (int i = 0; i < RUNTIME_ENV_RING_COUNT; ++i) {
         config.runtime_env.ring_task_window[i] = 262144;
         config.runtime_env.ring_heap[i] = heaps[i];

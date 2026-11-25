@@ -10,7 +10,7 @@
 set -euo pipefail
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 if (($# < 6)); then
-    echo 'usage: production/run.sh BUNDLE RUNTIME_LIB OUTPUT LEVEL WARMUP ROUNDS [--runtime=host_build_graph|percounter|tensormap_and_ringbuffer] [--materialize]' >&2
+    echo 'usage: production/run.sh BUNDLE RUNTIME_LIB OUTPUT LEVEL WARMUP ROUNDS [--runtime=host_build_graph|percounter|tensormap_and_ringbuffer] [--materialize] [--die-policy=0|1|2] [--die-clusters=N]' >&2
     exit 2
 fi
 preparation=""
@@ -19,6 +19,7 @@ for option in "${@:7}"; do
     case "$option" in
         --materialize) preparation=--materialize ;;
         --runtime=host_build_graph|--runtime=percounter|--runtime=tensormap_and_ringbuffer) runtime_name=${option#--runtime=} ;;
+        --die-policy=*|--die-clusters=*) ;;
         *) echo "Unknown option: $option" >&2; exit 2 ;;
     esac
 done

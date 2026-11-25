@@ -1,0 +1,294 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="824" font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="9">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="12" y="20" font-size="14" font-weight="700" fill="#111827">engram  p2k12  rank0</text>
+<text x="12" y="36" fill="#6b7280">12 of 32 clusters active &#183; span 210.1 us &#183; blue = die 0, red = die 1, grey = idle (no kernel ran)</text>
+<line x1="12" y1="420" x2="1376" y2="420" stroke="#9ca3af" stroke-dasharray="4 3"/>
+<rect x="196" y="54" width="1180" height="6" fill="#dbeafe"/>
+<text x="12" y="65" fill="#2563eb">die0 cluster00 core00  slot00</text>
+<rect x="309.12" y="54" width="345.83" height="6" fill="#2563eb"/>
+<rect x="667.84" y="54" width="341.94" height="6" fill="#2563eb"/>
+<rect x="1022.44" y="54" width="166.92" height="6" fill="#2563eb"/>
+<rect x="196" y="61" width="1180" height="6" fill="#dbeafe"/>
+<rect x="208.54" y="61" width="16.73" height="6" fill="#2563eb"/>
+<rect x="246.12" y="61" width="44.53" height="6" fill="#2563eb"/>
+<rect x="1198.82" y="61" width="56.00" height="6" fill="#2563eb"/>
+<rect x="1275.59" y="61" width="41.96" height="6" fill="#2563eb"/>
+<rect x="196" y="68" width="1180" height="6" fill="#dbeafe"/>
+<rect x="198.94" y="68" width="18.96" height="6" fill="#2563eb"/>
+<rect x="234.94" y="68" width="29.83" height="6" fill="#2563eb"/>
+<rect x="274.43" y="68" width="28.86" height="6" fill="#2563eb"/>
+<rect x="1194.62" y="68" width="52.06" height="6" fill="#2563eb"/>
+<rect x="1256.89" y="68" width="40.21" height="6" fill="#2563eb"/>
+<rect x="1306.60" y="68" width="41.75" height="6" fill="#2563eb"/>
+<rect x="196" y="77" width="1180" height="6" fill="#dbeafe"/>
+<text x="12" y="88" fill="#2563eb">die0 cluster01 core01  slot01</text>
+<rect x="310.05" y="77" width="346.30" height="6" fill="#2563eb"/>
+<rect x="672.11" y="77" width="171.49" height="6" fill="#2563eb"/>
+<rect x="853.66" y="77" width="171.68" height="6" fill="#2563eb"/>
+<rect x="196" y="84" width="1180" height="6" fill="#dbeafe"/>
+<rect x="207.94" y="84" width="17.70" height="6" fill="#2563eb"/>
+<rect x="245.35" y="84" width="31.93" height="6" fill="#2563eb"/>
+<rect x="1194.60" y="84" width="48.14" height="6" fill="#2563eb"/>
+<rect x="1257.52" y="84" width="40.07" height="6" fill="#2563eb"/>
+<rect x="1306.39" y="84" width="41.22" height="6" fill="#2563eb"/>
+<rect x="196" y="91" width="1180" height="6" fill="#dbeafe"/>
+<rect x="197.77" y="91" width="20.87" height="6" fill="#2563eb"/>
+<rect x="235.64" y="91" width="33.13" height="6" fill="#2563eb"/>
+<rect x="277.31" y="91" width="8.99" height="6" fill="#2563eb"/>
+<rect x="1193.73" y="91" width="47.58" height="6" fill="#2563eb"/>
+<rect x="1255.86" y="91" width="39.77" height="6" fill="#2563eb"/>
+<rect x="1305.84" y="91" width="39.64" height="6" fill="#2563eb"/>
+<rect x="196" y="100" width="1180" height="6" fill="#dbeafe"/>
+<text x="12" y="111" fill="#2563eb">die0 cluster02 core02  slot02</text>
+<rect x="311.13" y="100" width="345.05" height="6" fill="#2563eb"/>
+<rect x="670.96" y="100" width="170.85" height="6" fill="#2563eb"/>
+<rect x="852.37" y="100" width="172.84" height="6" fill="#2563eb"/>
+<rect x="196" y="107" width="1180" height="6" fill="#dbeafe"/>
+<rect x="207.49" y="107" width="14.60" height="6" fill="#2563eb"/>
+<rect x="245.66" y="107" width="13.12" height="6" fill="#2563eb"/>
+<rect x="277.53" y="107" width="8.62" height="6" fill="#2563eb"/>
+<rect x="1198.79" y="107" width="48.58" height="6" fill="#2563eb"/>
+<rect x="1256.73" y="107" width="40.03" height="6" fill="#2563eb"/>
+<rect x="1306.00" y="107" width="41.69" height="6" fill="#2563eb"/>
+<rect x="196" y="114" width="1180" height="6" fill="#dbeafe"/>
+<rect x="199.89" y="114" width="17.79" height="6" fill="#2563eb"/>
+<rect x="235.26" y="114" width="23.52" height="6" fill="#2563eb"/>
+<rect x="272.41" y="114" width="10.22" height="6" fill="#2563eb"/>
+<rect x="1194.43" y="114" width="47.62" height="6" fill="#2563eb"/>
+<rect x="1255.03" y="114" width="39.52" height="6" fill="#2563eb"/>
+<rect x="1305.33" y="114" width="40.19" height="6" fill="#2563eb"/>
+<rect x="196" y="123" width="1180" height="6" fill="#dbeafe"/>
+<text x="12" y="134" fill="#2563eb">die0 cluster03 core03  slot03</text>
+<rect x="309.15" y="123" width="343.18" height="6" fill="#2563eb"/>
+<rect x="663.46" y="123" width="172.16" height="6" fill="#2563eb"/>
+<rect x="845.16" y="123" width="171.78" height="6" fill="#2563eb"/>
+<rect x="196" y="130" width="1180" height="6" fill="#dbeafe"/>
+<rect x="207.63" y="130" width="18.31" height="6" fill="#2563eb"/>
+<rect x="244.75" y="130" width="28.90" height="6" fill="#2563eb"/>
+<rect x="1194.59" y="130" width="48.05" height="6" fill="#2563eb"/>
+<rect x="1254.45" y="130" width="43.08" height="6" fill="#2563eb"/>
+<rect x="1306.19" y="130" width="40.70" height="6" fill="#2563eb"/>
+<rect x="196" y="137" width="1180" height="6" fill="#dbeafe"/>
+<rect x="198.86" y="137" width="17.78" height="6" fill="#2563eb"/>
+<rect x="232.06" y="137" width="32.00" height="6" fill="#2563eb"/>
+<rect x="276.53" y="137" width="9.15" height="6" fill="#2563eb"/>
+<rect x="1194.61" y="137" width="52.80" height="6" fill="#2563eb"/>
+<rect x="1256.55" y="137" width="42.39" height="6" fill="#2563eb"/>
+<rect x="1310.17" y="137" width="41.17" height="6" fill="#2563eb"/>
+<rect x="196" y="146" width="1180" height="6" fill="#dbeafe"/>
+<text x="12" y="157" fill="#2563eb">die0 cluster04 core04  slot04</text>
+<rect x="310.17" y="146" width="345.01" height="6" fill="#2563eb"/>
+<rect x="671.79" y="146" width="173.62" height="6" fill="#2563eb"/>
+<rect x="853.23" y="146" width="173.45" height="6" fill="#2563eb"/>
+<rect x="196" y="153" width="1180" height="6" fill="#dbeafe"/>
+<rect x="207.48" y="153" width="18.12" height="6" fill="#2563eb"/>
+<rect x="249.91" y="153" width="27.79" height="6" fill="#2563eb"/>
+<rect x="1198.65" y="153" width="57.28" height="6" fill="#2563eb"/>
+<rect x="1275.00" y="153" width="43.34" height="6" fill="#2563eb"/>
+<rect x="196" y="160" width="1180" height="6" fill="#dbeafe"/>
+<rect x="198.11" y="160" width="20.63" height="6" fill="#2563eb"/>
+<rect x="235.50" y="160" width="37.47" height="6" fill="#2563eb"/>
+<rect x="1194.54" y="160" width="50.67" height="6" fill="#2563eb"/>
+<rect x="1256.31" y="160" width="42.93" height="6" fill="#2563eb"/>
+<rect x="1309.28" y="160" width="41.55" height="6" fill="#2563eb"/>
+<rect x="196" y="169" width="1180" height="6" fill="#dbeafe"/>
+<text x="12" y="180" fill="#2563eb">die0 cluster05 core05  slot05</text>
+<rect x="309.35" y="169" width="343.82" height="6" fill="#2563eb"/>
+<rect x="663.17" y="169" width="343.08" height="6" fill="#2563eb"/>
+<rect x="1019.18" y="169" width="167.45" height="6" fill="#2563eb"/>
+<rect x="196" y="176" width="1180" height="6" fill="#dbeafe"/>
+<rect x="206.53" y="176" width="17.89" height="6" fill="#2563eb"/>
+<rect x="250.89" y="176" width="26.85" height="6" fill="#2563eb"/>
+<rect x="1197.90" y="176" width="57.11" height="6" fill="#2563eb"/>
+<rect x="1270.27" y="176" width="40.45" height="6" fill="#2563eb"/>
+<rect x="196" y="183" width="1180" height="6" fill="#dbeafe"/>
+<rect x="199.29" y="183" width="14.30" height="6" fill="#2563eb"/>
+<rect x="228.36" y="183" width="31.68" height="6" fill="#2563eb"/>
+<rect x="269.91" y="183" width="30.75" height="6" fill="#2563eb"/>
+<rect x="1194.59" y="183" width="58.83" height="6" fill="#2563eb"/>
+<rect x="1267.71" y="183" width="38.59" height="6" fill="#2563eb"/>
+<rect x="1319.39" y="183" width="41.72" height="6" fill="#2563eb"/>
+<rect x="196" y="192" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="203" fill="#9ca3af">die0 cluster06 core06  IDLE</text>
+<rect x="196" y="199" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="206" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="215" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="226" fill="#9ca3af">die0 cluster07 core07  IDLE</text>
+<rect x="196" y="222" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="229" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="238" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="249" fill="#9ca3af">die0 cluster08 core08  IDLE</text>
+<rect x="196" y="245" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="252" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="261" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="272" fill="#9ca3af">die0 cluster09 core09  IDLE</text>
+<rect x="196" y="268" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="275" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="284" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="295" fill="#9ca3af">die0 cluster10 core10  IDLE</text>
+<rect x="196" y="291" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="298" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="307" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="318" fill="#9ca3af">die0 cluster11 core11  IDLE</text>
+<rect x="196" y="314" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="321" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="330" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="341" fill="#9ca3af">die0 cluster12 core12  IDLE</text>
+<rect x="196" y="337" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="344" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="353" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="364" fill="#9ca3af">die0 cluster13 core14  IDLE</text>
+<rect x="196" y="360" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="367" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="376" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="387" fill="#9ca3af">die0 cluster14 core15  IDLE</text>
+<rect x="196" y="383" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="390" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="399" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="410" fill="#9ca3af">die0 cluster15 core16  IDLE</text>
+<rect x="196" y="406" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="413" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="422" width="1180" height="6" fill="#fee2e2"/>
+<text x="12" y="433" fill="#dc2626">die1 cluster16 core54  slot06</text>
+<rect x="310.21" y="422" width="349.00" height="6" fill="#dc2626"/>
+<rect x="667.93" y="422" width="170.28" height="6" fill="#dc2626"/>
+<rect x="848.94" y="422" width="173.99" height="6" fill="#dc2626"/>
+<rect x="196" y="429" width="1180" height="6" fill="#fee2e2"/>
+<rect x="199.61" y="429" width="16.85" height="6" fill="#dc2626"/>
+<rect x="232.81" y="429" width="19.97" height="6" fill="#dc2626"/>
+<rect x="265.57" y="429" width="8.55" height="6" fill="#dc2626"/>
+<rect x="1195.36" y="429" width="57.63" height="6" fill="#dc2626"/>
+<rect x="1272.54" y="429" width="40.15" height="6" fill="#dc2626"/>
+<rect x="196" y="436" width="1180" height="6" fill="#fee2e2"/>
+<rect x="198.67" y="436" width="17.65" height="6" fill="#dc2626"/>
+<rect x="231.39" y="436" width="21.50" height="6" fill="#dc2626"/>
+<rect x="262.55" y="436" width="9.22" height="6" fill="#dc2626"/>
+<rect x="1195.06" y="436" width="59.47" height="6" fill="#dc2626"/>
+<rect x="1268.19" y="436" width="39.75" height="6" fill="#dc2626"/>
+<rect x="1321.20" y="436" width="40.86" height="6" fill="#dc2626"/>
+<rect x="196" y="445" width="1180" height="6" fill="#fee2e2"/>
+<text x="12" y="456" fill="#dc2626">die1 cluster17 core55  slot07</text>
+<rect x="309.85" y="445" width="348.84" height="6" fill="#dc2626"/>
+<rect x="667.72" y="445" width="171.01" height="6" fill="#dc2626"/>
+<rect x="849.14" y="445" width="170.66" height="6" fill="#dc2626"/>
+<rect x="196" y="452" width="1180" height="6" fill="#fee2e2"/>
+<rect x="198.03" y="452" width="29.79" height="6" fill="#dc2626"/>
+<rect x="244.13" y="452" width="38.07" height="6" fill="#dc2626"/>
+<rect x="1195.66" y="452" width="54.09" height="6" fill="#dc2626"/>
+<rect x="1262.90" y="452" width="42.37" height="6" fill="#dc2626"/>
+<rect x="1315.41" y="452" width="46.29" height="6" fill="#dc2626"/>
+<rect x="196" y="459" width="1180" height="6" fill="#fee2e2"/>
+<rect x="199.62" y="459" width="35.22" height="6" fill="#dc2626"/>
+<rect x="246.74" y="459" width="35.48" height="6" fill="#dc2626"/>
+<rect x="1201.01" y="459" width="51.00" height="6" fill="#dc2626"/>
+<rect x="1267.68" y="459" width="41.71" height="6" fill="#dc2626"/>
+<rect x="1324.90" y="459" width="42.22" height="6" fill="#dc2626"/>
+<rect x="196" y="468" width="1180" height="6" fill="#fee2e2"/>
+<text x="12" y="479" fill="#dc2626">die1 cluster18 core56  slot08</text>
+<rect x="311.06" y="468" width="345.10" height="6" fill="#dc2626"/>
+<rect x="667.18" y="468" width="343.00" height="6" fill="#dc2626"/>
+<rect x="196" y="475" width="1180" height="6" fill="#fee2e2"/>
+<rect x="199.16" y="475" width="18.23" height="6" fill="#dc2626"/>
+<rect x="243.97" y="475" width="28.88" height="6" fill="#dc2626"/>
+<rect x="282.89" y="475" width="16.74" height="6" fill="#dc2626"/>
+<rect x="1201.18" y="475" width="54.05" height="6" fill="#dc2626"/>
+<rect x="1271.86" y="475" width="43.62" height="6" fill="#dc2626"/>
+<rect x="196" y="482" width="1180" height="6" fill="#fee2e2"/>
+<rect x="196.81" y="482" width="14.71" height="6" fill="#dc2626"/>
+<rect x="226.81" y="482" width="27.03" height="6" fill="#dc2626"/>
+<rect x="262.77" y="482" width="30.24" height="6" fill="#dc2626"/>
+<rect x="1201.52" y="482" width="55.05" height="6" fill="#dc2626"/>
+<rect x="1271.71" y="482" width="42.41" height="6" fill="#dc2626"/>
+<rect x="1325.14" y="482" width="39.61" height="6" fill="#dc2626"/>
+<rect x="196" y="491" width="1180" height="6" fill="#fee2e2"/>
+<text x="12" y="502" fill="#dc2626">die1 cluster19 core57  slot09</text>
+<rect x="310.58" y="491" width="345.38" height="6" fill="#dc2626"/>
+<rect x="666.57" y="491" width="343.52" height="6" fill="#dc2626"/>
+<rect x="196" y="498" width="1180" height="6" fill="#fee2e2"/>
+<rect x="199.79" y="498" width="21.13" height="6" fill="#dc2626"/>
+<rect x="240.37" y="498" width="30.51" height="6" fill="#dc2626"/>
+<rect x="282.15" y="498" width="17.03" height="6" fill="#dc2626"/>
+<rect x="1201.14" y="498" width="52.13" height="6" fill="#dc2626"/>
+<rect x="1267.85" y="498" width="44.64" height="6" fill="#dc2626"/>
+<rect x="196" y="505" width="1180" height="6" fill="#fee2e2"/>
+<rect x="196.28" y="505" width="20.68" height="6" fill="#dc2626"/>
+<rect x="231.22" y="505" width="19.33" height="6" fill="#dc2626"/>
+<rect x="258.29" y="505" width="20.18" height="6" fill="#dc2626"/>
+<rect x="1195.51" y="505" width="56.37" height="6" fill="#dc2626"/>
+<rect x="1268.06" y="505" width="42.41" height="6" fill="#dc2626"/>
+<rect x="1328.38" y="505" width="40.42" height="6" fill="#dc2626"/>
+<rect x="196" y="514" width="1180" height="6" fill="#fee2e2"/>
+<text x="12" y="525" fill="#dc2626">die1 cluster20 core59  slot10</text>
+<rect x="311.36" y="514" width="345.04" height="6" fill="#dc2626"/>
+<rect x="667.47" y="514" width="342.76" height="6" fill="#dc2626"/>
+<rect x="196" y="521" width="1180" height="6" fill="#fee2e2"/>
+<rect x="197.76" y="521" width="13.40" height="6" fill="#dc2626"/>
+<rect x="226.47" y="521" width="18.31" height="6" fill="#dc2626"/>
+<rect x="253.62" y="521" width="18.92" height="6" fill="#dc2626"/>
+<rect x="1202.18" y="521" width="49.64" height="6" fill="#dc2626"/>
+<rect x="1263.17" y="521" width="40.22" height="6" fill="#dc2626"/>
+<rect x="1315.26" y="521" width="46.47" height="6" fill="#dc2626"/>
+<rect x="196" y="528" width="1180" height="6" fill="#fee2e2"/>
+<rect x="196.64" y="528" width="14.36" height="6" fill="#dc2626"/>
+<rect x="226.38" y="528" width="18.38" height="6" fill="#dc2626"/>
+<rect x="253.47" y="528" width="17.75" height="6" fill="#dc2626"/>
+<rect x="1201.33" y="528" width="51.47" height="6" fill="#dc2626"/>
+<rect x="1272.40" y="528" width="41.57" height="6" fill="#dc2626"/>
+<rect x="1332.63" y="528" width="43.37" height="6" fill="#dc2626"/>
+<rect x="196" y="537" width="1180" height="6" fill="#fee2e2"/>
+<text x="12" y="548" fill="#dc2626">die1 cluster21 core60  slot11</text>
+<rect x="311.54" y="537" width="340.64" height="6" fill="#dc2626"/>
+<rect x="662.06" y="537" width="345.82" height="6" fill="#dc2626"/>
+<rect x="196" y="544" width="1180" height="6" fill="#fee2e2"/>
+<rect x="199.66" y="544" width="19.24" height="6" fill="#dc2626"/>
+<rect x="232.44" y="544" width="27.16" height="6" fill="#dc2626"/>
+<rect x="268.98" y="544" width="22.02" height="6" fill="#dc2626"/>
+<rect x="1201.69" y="544" width="51.82" height="6" fill="#dc2626"/>
+<rect x="1272.17" y="544" width="42.64" height="6" fill="#dc2626"/>
+<rect x="196" y="551" width="1180" height="6" fill="#fee2e2"/>
+<rect x="196.00" y="551" width="18.95" height="6" fill="#dc2626"/>
+<rect x="231.85" y="551" width="27.01" height="6" fill="#dc2626"/>
+<rect x="268.83" y="551" width="22.14" height="6" fill="#dc2626"/>
+<rect x="1195.23" y="551" width="59.68" height="6" fill="#dc2626"/>
+<rect x="1272.03" y="551" width="41.58" height="6" fill="#dc2626"/>
+<rect x="196" y="560" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="571" fill="#9ca3af">die1 cluster22 core61  IDLE</text>
+<rect x="196" y="567" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="574" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="583" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="594" fill="#9ca3af">die1 cluster23 core62  IDLE</text>
+<rect x="196" y="590" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="597" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="606" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="617" fill="#9ca3af">die1 cluster24 core63  IDLE</text>
+<rect x="196" y="613" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="620" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="629" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="640" fill="#9ca3af">die1 cluster25 core64  IDLE</text>
+<rect x="196" y="636" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="643" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="652" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="663" fill="#9ca3af">die1 cluster26 core65  IDLE</text>
+<rect x="196" y="659" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="666" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="675" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="686" fill="#9ca3af">die1 cluster27 core66  IDLE</text>
+<rect x="196" y="682" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="689" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="698" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="709" fill="#9ca3af">die1 cluster28 core67  IDLE</text>
+<rect x="196" y="705" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="712" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="721" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="732" fill="#9ca3af">die1 cluster29 core68  IDLE</text>
+<rect x="196" y="728" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="735" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="744" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="755" fill="#9ca3af">die1 cluster30 core69  IDLE</text>
+<rect x="196" y="751" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="758" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="767" width="1180" height="6" fill="#e5e7eb"/>
+<text x="12" y="778" fill="#9ca3af">die1 cluster31 core70  IDLE</text>
+<rect x="196" y="774" width="1180" height="6" fill="#e5e7eb"/>
+<rect x="196" y="781" width="1180" height="6" fill="#e5e7eb"/>
+<text x="196" y="812" fill="#6b7280">0 us</text><text x="1336" y="812" fill="#6b7280">210.1 us</text></svg>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A5 Die 亲和性实测</title>
+<style>
+  :root {
+    --ink: #1a1d23;
+    --muted: #5c6570;
+    --line: #e3e6eb;
+    --bg: #f6f7f9;
+    --paper: #fff;
+    --blue: #1d4ed8;
+    --red: #b91c1c;
+    --green: #047857;
+    --amber: #92400e;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.55 "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 20px 64px; }
+  header { margin-bottom: 28px; }
+  h1 { font-size: 28px; line-height: 1.25; margin: 0 0 8px; }
+  h2 { font-size: 20px; margin: 36px 0 10px; }
+  h3 { font-size: 16px; margin: 22px 0 8px; }
+  p { margin: 8px 0; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .lead {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--green);
+    padding: 14px 16px;
+    margin-top: 16px;
+  }
+  .lead strong { font-size: 17px; }
+  section {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    padding: 8px 20px 18px;
+    margin-top: 14px;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 10px 0; }
+  th, td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  tr:last-child td { border-bottom: none; }
+  .pos { color: var(--green); font-weight: 650; }
+  .neg { color: var(--red); font-weight: 650; }
+  .flat { color: var(--muted); }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .card { border: 1px solid var(--line); padding: 10px 12px; }
+  .card h3 { margin-top: 0; }
+  .k { color: var(--muted); font-size: 12px; }
+  figure { margin: 16px 0 4px; }
+  figcaption { color: var(--muted); font-size: 13px; margin: 6px 0 18px; }
+  img { width: 100%; height: auto; border: 1px solid var(--line); background: #fff; }
+  ul { margin: 8px 0; padding-left: 1.2em; }
+  li { margin: 4px 0; }
+  .note { color: var(--muted); font-size: 13px; }
+  @media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>A5 Die 亲和性实测</h1>
+  <p class="meta">Ascend950DT_9581 · percounter 运行时 · 分支 exp/percounter-die-affinity · 2026-11-24 实测</p>
+  <div class="lead">
+    <strong>同样多的核，拆到两块 Die 上比挤在一块 Die 上更快。</strong>
+    K=16 时，swa 快 2.06%，engram 快 5.07%，都大于本组波动。
+    核数少到 2 个时两边持平。满宽 32 核时，这套调度相对「不约束」没有可分辨的额外开销。
+  </div>
+</header>
+
+<section>
+  <h2>1. 芯片 AICore 编号</h2>
+  <p>这颗芯片有两块 Die（独立计算区）。每块 Die 有 18 个 AICore，每个 AICore 是一组核：1 个 AIC（矩阵核，做大块矩阵运算）加 2 个 AIV（向量核，做逐个元素的运算）。一块 Die 因此有 18×3 = 54 个小核号。</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Die 0：0–53</h3>
+      <p><span class="mono">0–17</span>　18 个 AIC。号本身就是组号 L。</p>
+      <p><span class="mono">18–53</span>　36 个 AIV。第 L 组的两个 AIV 是 <span class="mono">18+2L</span> 和 <span class="mono">19+2L</span>。</p>
+      <p class="note">例：L=0 → AIV 18、19；L=14 → AIV 46、47。</p>
+    </div>
+    <div class="card">
+      <h3>Die 1：54–107</h3>
+      <p>同一套编号整体加 54。</p>
+      <p><span class="mono">54–71</span>　AIC。<span class="mono">72–107</span>　AIV。</p>
+      <p class="note">判断只做一次除法：物理核号 ÷ 54，商是 0 就在 Die 0，商是 1 就在 Die 1。</p>
+    </div>
+  </div>
+  <p>物理核号不是程序编的。每个小核启动后自己读硬件寄存器 <span class="mono">get_coreid()</span>，软件留下低 12 位。程序只拿<strong>这一组里那个 AIC</strong> 的号来除，两个 AIV 和它装在同一个 AICore 里，Die 跟它相同。</p>
+  <p>这次每块 Die 的 18 个 AIC 只启动了 16 个。0 号卡 Die 0 实际启动的是 0–12、14、15、16，空号是 13 和 17，对应空着的 AIV 是 44、45 和 52、53。</p>
+  <p>泳道图上的 cluster 号是启动序号，不是物理核号。程序按物理号从小到大启动，跳过空号。所以 0 号卡上 cluster 0–12 的物理号正好是 0–12，cluster 13 的物理号是 14，cluster 15 的物理号是 16，cluster 16 起进入 Die 1（物理号 54 起）。</p>
+</section>
+
+<section>
+  <h2>2. 对比实验设计</h2>
+  <p>三次运行拉起的核数相同：始终启动 32 个 cluster（32 个 AIC + 64 个 AIV）。差别只在调度器允许哪些 cluster 取任务。没选中的标记为 IDLE，启动后立刻返回，不取任务。</p>
+  <table>
+    <thead>
+      <tr><th>策略</th><th>怎么放</th><th>K=16 时的实际分布</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>原方案</td><td>不挑选，32 个 cluster 都取任务</td><td>Die 0 取 16，Die 1 取 16</td></tr>
+      <tr><td>单 Die</td><td>K 个全放 Die 0。一块 Die 这次只有 16 个，所以 K 最大 16</td><td>Die 0 取 16，Die 1 一个都不取</td></tr>
+      <tr><td>跨 Die</td><td>K 必须是偶数，每块 Die 各放 K/2</td><td>Die 0 取 8，Die 1 取 8</td></tr>
+    </tbody>
+  </table>
+  <p>公平比较的是<strong>同一个 K</strong>：参与计算的 cluster 数一样，只换它们落在一块 Die 还是两块 Die。</p>
+  <ul>
+    <li>指标是 L0 aicore_wall：第一个业务 kernel（跑在核上的一段计算）开始，到最后一个结束。每个配置预热 1 轮、测量 10 轮，表中是 10 轮平均。</li>
+    <li>K 取 2、4、8、12、16。跨 Die 另外测到 20、24、28、32，用来看核数增加后的走势，以及满宽时和原方案比。</li>
+    <li>计时运行不开记录。泳道图来自另一轮单独运行，不混进平均值。</li>
+    <li>能做这条对比的是 swa 和 engram。其余用例见第 5 节。</li>
+  </ul>
+</section>
+
+<section>
+  <h2>3. 对比结果</h2>
+  <p class="note">单位 µs（微秒，1 毫秒 = 1000 微秒）。「差异」= 跨 Die ÷ 单 Die − 1，负数表示跨 Die 更快。单点波动（标准差 ÷ 平均值）在 0.11%–2.69%。</p>
+  <h3>swa</h3>
+  <table>
+    <thead>
+      <tr><th>K</th><th>单 Die</th><th>跨 Die</th><th>差异</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2</td><td>1423.0</td><td>1427.2</td><td class="flat">+0.30%</td></tr>
+      <tr><td>4</td><td>730.1</td><td>726.8</td><td class="flat">−0.45%</td></tr>
+      <tr><td>8</td><td>395.5</td><td>395.0</td><td class="flat">−0.12%</td></tr>
+      <tr><td>12</td><td>300.0</td><td>298.9</td><td class="flat">−0.36%</td></tr>
+      <tr><td>16</td><td>245.8</td><td>240.7</td><td class="pos">−2.06%</td></tr>
+      <tr><td>20</td><td class="flat">Die 0 放不下</td><td>211.8</td><td class="flat">—</td></tr>
+      <tr><td>24</td><td class="flat">Die 0 放不下</td><td>197.1</td><td class="flat">—</td></tr>
+      <tr><td>28</td><td class="flat">Die 0 放不下</td><td>193.7</td><td class="flat">—</td></tr>
+      <tr><td>32</td><td class="flat">Die 0 放不下</td><td>143.1</td><td class="flat">—</td></tr>
+    </tbody>
+  </table>
+  <h3>engram</h3>
+  <table>
+    <thead>
+      <tr><th>K</th><th>单 Die</th><th>跨 Die</th><th>差异</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>2</td><td>1010.4</td><td>1007.6</td><td class="flat">−0.27%</td></tr>
+      <tr><td>4</td><td>527.2</td><td>523.7</td><td class="flat">−0.68%</td></tr>
+      <tr><td>8</td><td>292.0</td><td>287.4</td><td class="pos">−1.58%</td></tr>
+      <tr><td>12</td><td>216.0</td><td>212.4</td><td class="pos">−1.67%</td></tr>
+      <tr><td>16</td><td>178.6</td><td>169.6</td><td class="pos">−5.07%</td></tr>
+      <tr><td>20</td><td class="flat">Die 0 放不下</td><td>139.2</td><td class="flat">—</td></tr>
+      <tr><td>24</td><td class="flat">Die 0 放不下</td><td>138.4</td><td class="flat">—</td></tr>
+      <tr><td>28</td><td class="flat">Die 0 放不下</td><td>108.7</td><td class="flat">—</td></tr>
+      <tr><td>32</td><td class="flat">Die 0 放不下</td><td>101.8</td><td class="flat">—</td></tr>
+    </tbody>
+  </table>
+  <h3>满宽对照：原方案 vs 跨 Die 16+16</h3>
+  <p>六个跑通的用例都能做这一对。核数相同，差别只在调度器是否按 Die 挑选。双卡用例 layers_19_21 取两张卡里较慢的那张。</p>
+  <table>
+    <thead>
+      <tr><th>用例</th><th>原方案</th><th>跨 Die K=32</th><th>差异</th><th>两组波动</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>engram</td><td>101.7</td><td>101.8</td><td class="flat">+0.10%</td><td>2.69% / 2.38%</td></tr>
+      <tr><td>swa</td><td>141.0</td><td>143.1</td><td class="flat">+1.53%</td><td>1.14% / 2.33%</td></tr>
+      <tr><td>c1a_reuse</td><td>147.9</td><td>150.1</td><td class="flat">+1.52%</td><td>0.92% / 1.30%</td></tr>
+      <tr><td>c2a_full</td><td>190.9</td><td>192.1</td><td class="flat">+0.63%</td><td>1.99% / 1.74%</td></tr>
+      <tr><td>c1a_reindex</td><td>238.3</td><td>242.6</td><td class="flat">+1.79%</td><td>0.75% / 2.41%</td></tr>
+      <tr><td>layers_19_21</td><td>1875.6</td><td>1875.6</td><td class="flat">+0.00%</td><td>0.57% / 0.87%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>4. 结果分析</h2>
+  <p><strong>跨 Die 更快，而且核越多越明显。</strong>engram 从 K=8 起稳定快于单 Die，到 K=16 快 5.07%。swa 在 K≤12 的差距都落在波动里，K=16 快 2.06%，超出本组波动（1.28% 和 0.62%）。</p>
+  <p><strong>跨 Die 这条路本身几乎不花时间。</strong>K=2 时 swa 差 +0.30%、engram 差 −0.27%，都在波动内。如果跨 Die 搬数据有一笔固定开销，核数最少的时候应该最明显，实测没有。</p>
+  <p><strong>所以变快来自「没挤在一块 Die 上」。</strong>同样 K 个 cluster，单 Die 全部共用这一块 Die 的内存通道和片上缓存；跨 Die 拆成两半，两块 Die 各用各的。K 小的时候通道没用满，两边一样快；K 大了单 Die 先满，跨 Die 就拉开。K 从 2 加到 32 是 16 倍核，swa 只快到约 1/10、engram 约 1/10，高核数段已经不是「再加核就线性变快」，和「先撞上通道」一致。</p>
+  <p class="note">这次没有采缓存未命中或带宽计数。上面是从「K=2 持平、差距随 K 变大」读出来的，不是计数器直接测到的。</p>
+  <p><strong>调度机制在满宽时没有额外代价。</strong>六个用例的「跨 Die 16+16」相对原方案在 +0.00% 到 +1.79%，都没有超过各自波动。</p>
+</section>
+
+<section>
+  <h2>5. 补充说明：哪些用例没做单 Die / 跨 Die 对比</h2>
+  <table>
+    <thead>
+      <tr><th>用例</th><th>做到哪一步</th><th>原因</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>swa、engram</td><td>单 Die 与跨 Die 的全 K 对比</td><td>任务图里没有「必须同时占满所有核」的栅栏</td></tr>
+      <tr><td>c1a_reuse、c1a_reindex、c2a_full、layers_19_21</td><td>只做了满宽 K=32</td><td>含 sync-start 栅栏：一个任务的全部分块必须同时在位。录制时按 32 个 cluster 写下了分块数，回放改不了。收到 16 时守卫直接拒绝，否则会死锁</td></tr>
+      <tr><td>moe</td><td>未测</td><td>它在运行时现场建图，没有接入 Die 参数。另外这张图在窄于 32 的宽度下会中途停住，换运行时也一样</td></tr>
+    </tbody>
+  </table>
+  <p>栅栏那四组曾经试过按 8、10、12、14、16、20、24 重新录制整段前向，七个宽度都停在同一个点（90 个终点任务完成 86 个）。其中 10 和 14 的任务图结构和成功的 32 宽完全一样，仍然停住。限制在模型侧，不在 Die 调度。</p>
+</section>
+
+<section>
+  <h2>6. K=16 泳道图（swa）</h2>
+  <p>每行是一个 cluster。一行里三条细条从上到下是 AIC、AIV0、AIV1。蓝色是 Die 0，红色是 Die 1，灰色是 IDLE（调度器没让它取任务）。纵轴的 cluster / core 来自 AICPU 读到的物理核号，色块来自每个 kernel 的起止时间，两边对过，活跃的 cluster 一致。</p>
+
+  <figure>
+    <img src="swimlanes/swa-p0k0-rank0.png" alt="swa 原方案，32 个 cluster 全部有任务">
+    <figcaption>原方案。32 个 cluster 都有色块：Die 0 十六个蓝，Die 1 十六个红。</figcaption>
+  </figure>
+  <figure>
+    <img src="swimlanes/swa-p1k16-rank0.png" alt="swa 单 Die K=16，只有 Die 0 有任务">
+    <figcaption>单 Die，K=16。16 个 cluster 全在 Die 0，Die 1 整片灰色。</figcaption>
+  </figure>
+  <figure>
+    <img src="swimlanes/swa-p2k16-rank0.png" alt="swa 跨 Die K=16，两块 Die 各 8 个 cluster">
+    <figcaption>跨 Die，K=16。Die 0 前 8 个有活、后 8 个空闲；Die 1 对称，也是 8 个有活。</figcaption>
+  </figure>
+  <p class="note">同目录下 engram 的三张图是同一摆法。可缩放版本是旁边的 <span class="mono">.perfetto.json</span>，用 ui.perfetto.dev 打开。那里的 <span class="mono">AIC_0</span>、<span class="mono">AIV_32</span> 是启动序号：32 个 AIC 占 0–31，AIV 从 32 开始排，所以 cluster 0 的两个向量核是 AIV_32 和 AIV_33。</p>
+</section>
+</main>
+</body>
+</html>
